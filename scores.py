@@ -1,14 +1,31 @@
-scores = [98, 98, 100, 103]
+import json 
 
-previous_score = scores[0]
+with open("game.json") as file:
+    game = json.load(file)
 
-for current_score in scores[1:]:
-    if current_score > previous_score:
-        print(f"Score increased from {previous_score} to {current_score}")
-        print("Trigger LED effect")
-    else:
-        print("No score change")
+print(f'{game["away_team"]} at {game["home_team"]}')
+print (f'{game["away_score"]} - {game["home_score"]}')
 
-    previous_score = current_score
+if game["home_score"] > game["away_score"]:
+    print(f'{game["home_team"]} is winning')
+elif game["away_score"] > game["home_score"]:
+    print(f'{game["away_team"]} is winning')
+else:
+    print("The game is tied")
+
+
+previous_game = {
+    "home_team": "Toronto Raptors",
+    "home_score": 98
+}
+
+current_game = {
+    "home_team": "Toronto Raptors",
+    "home_score": 100
+}
+
+if current_game["home_score"] > previous_game["home_score"]:
+    print(f'{current_game["home_team"]} scored')
+    print("Trigger LED effect") 
 
 
