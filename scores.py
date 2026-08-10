@@ -1,5 +1,8 @@
 import json 
 
+def trigger_led(team_name):
+    print(f"LED effect triggered for {team_name}")
+
 with open("game.json") as file:
     game = json.load(file)
 
@@ -26,6 +29,6 @@ current_game = {
 
 if current_game["home_score"] > previous_game["home_score"]:
     print(f'{current_game["home_team"]} scored')
-    print("Trigger LED effect") 
+    trigger_led(current_game["home_team"]) 
 
 
