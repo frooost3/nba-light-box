@@ -1,7 +1,20 @@
 import json 
 
+TEAM_COLOURS = {
+    "Toronto Raptors": (206, 17, 65),
+    "Boston Celtics": (0, 122, 51),
+}
+
 def trigger_led(team_name):
+    colour = TEAM_COLOURS.get(team_name, (255, 255, 255))
     print(f"LED effect triggered for {team_name}")
+    print(f"RGB colour: {colour}")
+
+def check_score_change(previous_game, current_game):
+    if current_game["home_score"] > previous_game["home_score"]:
+        team = current_game["home_team"]
+        print(f"{team} scored")
+        trigger_led(team)
 
 with open("game.json") as file:
     game = json.load(file)
@@ -27,8 +40,4 @@ current_game = {
     "home_score": 100
 }
 
-if current_game["home_score"] > previous_game["home_score"]:
-    print(f'{current_game["home_team"]} scored')
-    trigger_led(current_game["home_team"]) 
-
-
+check_score_change(previous_game, current_game)
