@@ -43,6 +43,11 @@ def check_score_change(previous_game, current_game):
         print(f"{team} scored")
         trigger_led(team)
 
+    if current_game["away_score"] > previous_game["away_score"]:
+        team = current_game["away_team"]
+        print(f"{team} scored")
+        trigger_led(team)
+
 with open("game.json") as file:
     game = json.load(file)
 
@@ -59,12 +64,17 @@ else:
 
 previous_game = {
     "home_team": "Toronto Raptors",
-    "home_score": 98
+    "home_score": 98,
+    "away_team": "Boston Celtics",
+    "away_score": 95
 }
 
 current_game = {
     "home_team": "Toronto Raptors",
-    "home_score": 100
+    "home_score": 98,
+    "away_team": "Boston Celtics",
+    "away_score": 97
 }
 
 check_score_change(previous_game, current_game)
+
