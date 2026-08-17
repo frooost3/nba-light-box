@@ -1,4 +1,5 @@
 import json
+import requests
 import time
 import board
 import adafruit_pixelbuf 
@@ -48,33 +49,37 @@ def check_score_change(previous_game, current_game):
         print(f"{team} scored")
         trigger_led(team)
 
-with open("game.json") as file:
-    game = json.load(file)
+def get_live_game():
+    url = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
 
-print(f'{game["away_team"]} at {game["home_team"]}')
-print (f'{game["away_score"]} - {game["home_score"]}')
+    data = requests.get(url, timeout=10).json()
 
-if game["home_score"] > game["away_score"]:
-    print(f'{game["home_team"]} is winning')
-elif game["away_score"] > game["home_score"]:
-    print(f'{game["away_team"]} is winning')
-else:
-    print("The game is tied")
+    event = data["events"][0]
+    competitors = event["competitions"][0]["competitors"]
 
+    game = {}
 
-previous_game = {
-    "home_team": "Toronto Raptors",
-    "home_score": 98,
-    "away_team": "Boston Celtics",
-    "away_score": 95
-}
+    for team in competitors:
+        if team["homeAway"] == "home":
+            game["home_team"] = team["team"]["displayName"]
+            game["home_score"] = int(team["score"])
 
-current_game = {
-    "home_team": "Toronto Raptors",
-    "home_score": 98,
-    "away_team": "Boston Celtics",
-    "away_score": 97
-}
+        else:
+            game["away_team"] = team["team"]["displayName"]
+            game["away_score"] = int(team["score"])
 
-check_score_change(previous_game, current_game)
+    return game
 
+previous_game = get_live_game()
+
+print("Starting game:")
+print(previous_game)
+
+while True:
+    time.sleep(10)
+
+    current_game = get_live_game()
+
+    check_score_change(previous_game, current_game)
+
+    previous_game = current_game
