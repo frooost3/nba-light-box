@@ -47,11 +47,18 @@ def trigger_led(team_name):
     print(f"LED effect triggered for {team_name}")
     print(f"RGB colour: {colour}")
 
-    pixels.fill(colour)
-    time.sleep(2)
-    pixels.fill((0, 0, 0))
+    for _ in range(3):
+        pixels.fill(colour)
+        time.sleep(0.4)
+
+        pixels.fill((0, 0, 0))
+        time.sleep(0.25)
 
 def check_score_change(previous_game, current_game):
+    if previous_game["game_id"] != current_game["game_id"]:
+        print("New game detected.")
+        return
+
     if current_game["home_score"] > previous_game["home_score"]:
         team = current_game["home_team"]
         print(f"{team} scored")
@@ -65,7 +72,13 @@ def check_score_change(previous_game, current_game):
 def get_live_game():
     url = "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard"
 
-    data = requests.get(url, timeout=10).json()
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+    except requests.RequestException as error:
+        print(f"Network error: {error}")
+        return None
 
     event = None 
 
@@ -82,7 +95,9 @@ def get_live_game():
 
     competitors = event["competitions"][0]["competitors"]
 
-    game = {}
+    game = {
+        "game_id": event["id"]
+    }
 
     for team in competitors:
         if team["homeAway"] == "home":
