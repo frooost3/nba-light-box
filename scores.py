@@ -6,8 +6,21 @@ import adafruit_pixelbuf
 from adafruit_raspberry_pi5_neopixel_write import neopixel_write
 
 TEAM_COLOURS = {
-    "Toronto Raptors": (206, 17, 65),
-    "Boston Celtics": (0, 122, 51),
+    "Atlanta Dream": (200, 16, 46),
+    "Chicago Sky": (65, 143, 222),
+    "Connecticut Sun": (220, 68, 5),
+    "Dallas Wings": (0, 83, 155),
+    "Golden State Valkyries": (112, 71, 148),
+    "Indiana Fever": (0, 45, 98),
+    "Las Vegas Aces": (186, 12, 47),
+    "Los Angeles Sparks": (85, 37, 130),
+    "Minnesota Lynx": (0, 80, 131),
+    "New York Liberty": (0, 171, 142),
+    "Phoenix Mercury": (32, 24, 71),
+    "Portland Fire": (206, 17, 38),
+    "Seattle Storm": (45, 177, 53),
+    "Toronto Tempo": (0, 120, 212),
+    "Washington Mystics": (0, 43, 92),
 }
 
 class Pi5Pixelbuf(adafruit_pixelbuf.PixelBuf):
@@ -54,7 +67,19 @@ def get_live_game():
 
     data = requests.get(url, timeout=10).json()
 
-    event = data["events"][0]
+    event = None 
+
+    for game_event in data["events"]:
+        status = game_event["status"]["type"]["state"]
+
+        if status == "in":
+            event = game_event
+            break
+
+    if event is None:
+        print("No live WNBA game right now.")
+        return None
+
     competitors = event["competitions"][0]["competitors"]
 
     game = {}
@@ -70,16 +95,17 @@ def get_live_game():
 
     return game
 
-previous_game = get_live_game()
-
-print("Starting game:")
-print(previous_game)
+previous_game = None
 
 while True:
-    time.sleep(10)
-
     current_game = get_live_game()
 
-    check_score_change(previous_game, current_game)
+    if current_game is None:
+        time.sleep(30)
+        continue
+
+    if previous_game is not None:
+        check_score_change(previous_game, current_game)
 
     previous_game = current_game
+    time.sleep(10)
